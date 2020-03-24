@@ -1,0 +1,98 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/device_name"
+        style="@style/TextAppearance.MaterialComponents.Headline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_horiz_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/device_name"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/device_address_label"/>
+
+    <TextView
+        android:id="@+id/device_address_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="@dimen/margin_horiz_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/mac_address"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/device_name"
+        app:layout_constraintBottom_toTopOf="@id/device_rssi_label"/>
+
+    <TextView
+        android:id="@+id/device_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="@dimen/margin_horiz_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/address_placeholder"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/device_address_label"
+        app:layout_constraintBaseline_toBaselineOf="@id/device_address_label"/>
+
+    <TextView
+        android:id="@+id/device_rssi_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="@dimen/margin_horiz_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/rssi"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/device_address"/>
+
+    <TextView
+        android:id="@+id/device_rssi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/rssi_placeholder"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintEnd_toStartOf="@id/device_rssi_units"
+        app:layout_constraintStart_toEndOf="@id/device_rssi_label"
+        app:layout_constraintBaseline_toBaselineOf="@id/device_rssi_label"/>
+
+    <TextView
+        android:id="@+id/device_rssi_units"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/margin_horiz_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/rssi_units"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@id/device_rssi"/>
+
+    <ImageView
+        android:id="@+id/device_data_graph_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp"
+        android:src="@color/colorPrimaryDark"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/device_rssi_label"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

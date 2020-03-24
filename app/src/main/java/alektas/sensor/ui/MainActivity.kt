@@ -3,6 +3,7 @@ package alektas.sensor.ui
 import alektas.sensor.App
 import alektas.sensor.R
 import alektas.sensor.domain.entities.DeviceManager
+import alektas.sensor.ui.scan.ScanViewModel
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
@@ -15,25 +16,24 @@ import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_devices.*
 import javax.inject.Inject
 
 private const val REQUEST_ENABLE_BLUETOOTH = 101
 
 class MainActivity : AppCompatActivity() {
     @Inject
-    lateinit var bleAdapter: BluetoothAdapter
-
-    @Inject
-    lateinit var deviceManager: DeviceManager
-
-    @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ScanViewModel by viewModels { viewModelFactory }
-    private lateinit var deviceAdapter: DeviceAdapter
+    @Inject
+    lateinit var bleAdapter: BluetoothAdapter
+    @Inject
+    lateinit var deviceManager: DeviceManager
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,44 +46,36 @@ class MainActivity : AppCompatActivity() {
 
         App.component.inject(this)
 
-        initDeviceList()
+        setupNavigation()
         subscribeOn(viewModel)
     }
 
-    private fun initDeviceList() {
-        deviceAdapter = DeviceAdapter()
-        with(device_list) {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = deviceAdapter
+    private fun setupNavigation() {
+        val navController = findNavController(R.id.content_container).apply {
+            addOnDestinationChangedListener { _, dest, _ ->
+                if (dest.id == R.id.scanFragment) bluetooth_scan_btn.show()
+                else bluetooth_scan_btn.hide()
+            }
         }
+        appBarConfiguration = AppBarConfiguration(navController.graph)
+        setupActionBarWithNavController(navController, appBarConfiguration)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.content_container)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     private fun subscribeOn(viewModel: ScanViewModel) {
-        viewModel.devices.observe(this, Observer {
-            deviceAdapter.submitList(it)
-        })
-
-        viewModel.placeholderState.observe(this, Observer {
-            scan_placeholder_text.visibility = it
-        })
-
-        viewModel.scanStatus.observe(this, Observer {
-            scan_activity_bar.visibility = it.progressVisibility
-            bluetooth_scan_btn.setImageResource(it.btnIconRes)
-        })
-
-        viewModel.errorEvent.observe(this, Observer { msg ->
-            msg.getValue()?.let {
-                Snackbar.make(bluetooth_scan_btn, it, Snackbar.LENGTH_SHORT)
-            }
-        })
-
         viewModel.enableBleEvent.observe(this, Observer { event ->
             event.getValue()?.let {
                 toast(it)
                 requestBle()
             }
+        })
+
+        viewModel.scanStatus.observe(this, Observer {
+            bluetooth_scan_btn.setImageResource(it.btnIconRes)
         })
     }
 
@@ -115,7 +107,4 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
-    private fun toast(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-    }
 }

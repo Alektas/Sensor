@@ -7,11 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
 
-    <include
-        layout="@layout/content_devices"
+    <fragment
+        android:id="@+id/content_container"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="?attr/actionBarSize" />
+        android:layout_marginBottom="?attr/actionBarSize"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"

@@ -1,4 +1,4 @@
-package alektas.sensor.ui
+package alektas.sensor.ui.scan
 
 import alektas.sensor.App
 import alektas.sensor.R
@@ -32,6 +32,8 @@ class ScanViewModel @Inject constructor(
     val errorEvent: LiveData<DisposableContainer<Int>> get() = _errorEvent
     private val _enableBleEvent = MutableLiveData<DisposableContainer<Int>>()
     val enableBleEvent: LiveData<DisposableContainer<Int>> get() = _enableBleEvent
+    private val _showDeviceEvent = MutableLiveData<DisposableContainer<DeviceModel>>()
+    val showDeviceEvent: LiveData<DisposableContainer<DeviceModel>> get() = _showDeviceEvent
     private var bleScanDisposable: Disposable? = null
 
     init {
@@ -57,6 +59,11 @@ class ScanViewModel @Inject constructor(
     override fun onCleared() {
         bleScanDisposable?.takeUnless { it.isDisposed }?.dispose()
         super.onCleared()
+    }
+
+    fun onSelect(device: DeviceModel) {
+        stopScanning()
+        _showDeviceEvent.value = DisposableContainer(device)
     }
 
     fun onBleScanClick() {
@@ -87,9 +94,15 @@ class ScanViewModel @Inject constructor(
 
     private fun applyStatus(isActive: Boolean) {
         _scanStatus.value = if (isActive) {
-            ScanningState(View.VISIBLE, R.drawable.ic_close_black_24dp)
+            ScanningState(
+                View.VISIBLE,
+                R.drawable.ic_close_black_24dp
+            )
         } else {
-            ScanningState(View.INVISIBLE, R.drawable.ic_bluetooth_searching_black_24dp)
+            ScanningState(
+                View.INVISIBLE,
+                R.drawable.ic_bluetooth_searching_black_24dp
+            )
         }
     }
 
