@@ -1,4 +1,4 @@
-package alektas.sensor.ui
+package alektas.sensor.ui.scan
 
 import alektas.sensor.R
 import alektas.sensor.domain.entities.DeviceModel
@@ -10,7 +10,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.device_item.view.*
 
-class DeviceAdapter : ListAdapter<DeviceModel, DeviceAdapter.DeviceViewHolder>(DIFF_CALLBACK) {
+typealias DeviceSelectListener = (DeviceModel) -> Unit
+
+class DeviceAdapter(private val listener: DeviceSelectListener) :
+    ListAdapter<DeviceModel, DeviceAdapter.DeviceViewHolder>(
+        DIFF_CALLBACK
+    ) {
 
     init {
         setHasStableIds(true)
@@ -27,7 +32,7 @@ class DeviceAdapter : ListAdapter<DeviceModel, DeviceAdapter.DeviceViewHolder>(D
     }
 
     override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
-        holder.bindTo(getItem(position))
+        holder.bindTo(getItem(position), listener)
     }
 
     class DeviceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -35,10 +40,12 @@ class DeviceAdapter : ListAdapter<DeviceModel, DeviceAdapter.DeviceViewHolder>(D
         private val address = view.device_address
         private val rssi = view.device_rssi
 
-        fun bindTo(device: DeviceModel) = device.let {
+        fun bindTo(device: DeviceModel, listener: DeviceSelectListener) = device.let {
             name.text = it.name ?: it.address
             address.text = it.address
             rssi.text = it.rssi.toString()
+
+            itemView.setOnClickListener { v -> listener(it) }
         }
     }
 
