@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Sensor</string>
+    <string name="ble_scan_error">Failed to scan devices</string>
+    <string name="ble_enable_request">Enable Bluetooth to use the feature</string>
+    <string name="device_ble_support_error">Device doesn\'t support Bluetooth Low Energy</string>
+    <string name="ble_scan_unknown_error">Something wrong happens</string>
+    <string name="device_name">Device name</string>
+    <string name="rssi">RSSI</string>
+    <string name="rssi_placeholder">-0.0</string>
+    <string name="rssi_units">dBm</string>
+    <string name="mac_address">MAC</string>
+    <string name="address_placeholder">00:00:00:00:00:00</string>
+    <string name="scan_placeholder">No devices</string>
+</resources>
