@@ -66,7 +66,7 @@ class ScanViewModel @Inject constructor(
         _showDeviceEvent.value = DisposableContainer(device)
     }
 
-    fun onBleScanClick() {
+    fun onBleScanIntent() {
         if (deviceManager.isScanning()) {
             stopScanning()
             return
