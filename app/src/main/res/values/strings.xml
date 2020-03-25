@@ -12,4 +12,8 @@
     <string name="address_placeholder">00:00:00:00:00:00</string>
     <string name="scan_placeholder">No devices</string>
     <string name="unknown_device_name">Unknown</string>
+    <string name="location_permission_deny_error">Grant the location permission to use the feature</string>
+    <string name="location_enable_request_msg">Enable Location to use the feature</string>
+    <string name="location_enable_request_title">Location access</string>
+    <string name="location_enable_request_btn_positive">Open settings</string>
 </resources>
