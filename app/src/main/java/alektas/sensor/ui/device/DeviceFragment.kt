@@ -44,7 +44,19 @@ class DeviceFragment : Fragment() {
         device_name.text = name ?: getString(R.string.unknown_device_name)
         device_address.text = address
         device_rssi.text = rssi.toString()
+        setupGraph()
 
+        viewModel.onViewCreated()
+        viewModel.cashedData.observe(viewLifecycleOwner, Observer {
+            dataSeries.resetData(it)
+        })
+        viewModel.data.observe(viewLifecycleOwner, Observer {
+            println(it)
+            dataSeries.appendData(it, true, 100)
+        })
+    }
+
+    private fun setupGraph() {
         dataSeries.color = ContextCompat.getColor(requireContext(), R.color.colorGraphLines)
         device_data_graph.apply {
             viewport.apply {
@@ -57,15 +69,6 @@ class DeviceFragment : Fragment() {
             }
             addSeries(dataSeries)
         }
-
-        viewModel.onViewCreated()
-        viewModel.cashedData.observe(viewLifecycleOwner, Observer {
-            dataSeries.resetData(it)
-        })
-        viewModel.data.observe(viewLifecycleOwner, Observer {
-            println(it)
-            dataSeries.appendData(it, true, 100)
-        })
     }
 
 }
