@@ -18,8 +18,8 @@ class BluetoothModule {
 
     @Provides
     @Singleton
-    fun provideDeviceManager(scanner: DeviceScanner): DeviceManager {
-        return BleDeviceManager(scanner)
+    fun provideDeviceManager(context: Context, scanner: DeviceScanner): DeviceManager {
+        return BleDeviceManager(context, scanner)
     }
 
     @Provides

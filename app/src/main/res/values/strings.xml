@@ -16,4 +16,12 @@
     <string name="location_enable_request_msg">Enable Location to use the feature</string>
     <string name="location_enable_request_title">Location access</string>
     <string name="location_enable_request_btn_positive">Open settings</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connected">Connected</string>
+    <string name="service_name">Service Name</string>
+    <string name="uuid">UUID</string>
+    <string name="service_type">Type</string>
+    <string name="service_type_placeholder">UNKNOWN</string>
+    <string name="uuid_placeholder">0x0000</string>
+    <string name="device_services_discovering_error">Fail to find device services</string>
 </resources>

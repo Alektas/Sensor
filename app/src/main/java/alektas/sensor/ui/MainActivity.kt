@@ -2,7 +2,7 @@ package alektas.sensor.ui
 
 import alektas.sensor.App
 import alektas.sensor.R
-import alektas.sensor.domain.entities.DeviceManager
+import alektas.sensor.di.SCAN_VM_FACTORY_NAME
 import alektas.sensor.ui.scan.ScanViewModel
 import android.Manifest
 import android.app.Activity
@@ -31,6 +31,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
+import javax.inject.Named
 
 private const val REQUEST_ENABLE_BLUETOOTH = 101
 private const val REQUEST_ENABLE_LOCATION = 102
@@ -38,14 +39,9 @@ private const val REQUEST_PERMISSION_LOCATION = 202
 
 class MainActivity : AppCompatActivity() {
     @Inject
+    @field:Named(value = SCAN_VM_FACTORY_NAME)
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ScanViewModel by viewModels { viewModelFactory }
-
-    @Inject
-    lateinit var bleAdapter: BluetoothAdapter
-
-    @Inject
-    lateinit var deviceManager: DeviceManager
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var locationManager: LocationManager
 
