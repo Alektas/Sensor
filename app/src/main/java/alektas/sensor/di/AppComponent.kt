@@ -1,6 +1,8 @@
 package alektas.sensor.di
 
 import alektas.sensor.ui.MainActivity
+import alektas.sensor.ui.device.DeviceFragment
+import alektas.sensor.ui.device.DeviceViewModel
 import alektas.sensor.ui.scan.ScanViewModel
 import alektas.sensor.ui.scan.ScanFragment
 import android.content.Context
@@ -12,13 +14,9 @@ import javax.inject.Singleton
 @Component(modules = [AppModule::class, ViewModelsModule::class, BluetoothModule::class])
 interface AppComponent {
     fun inject(activity: MainActivity)
-    fun inject(vm: ScanViewModel)
+    fun inject(viewModel: ScanViewModel)
+    fun inject(viewModel: DeviceViewModel)
     fun inject(scanFragment: ScanFragment)
+    fun inject(deviceFragment: DeviceFragment)
 
-    @Component.Builder
-    interface Builder {
-        @BindsInstance
-        fun withContext(context: Context): Builder
-        fun build(): AppComponent
-    }
 }

@@ -7,4 +7,6 @@ interface DeviceManager {
     fun startScan()
     fun stopScan()
     fun isScanning(): Boolean
+    fun connectDevice(address: String)
+    fun disconnectDevice()
 }

@@ -1,6 +1,6 @@
 package alektas.sensor.bluetooth.scanners
 
-import alektas.sensor.domain.entities.DeviceCallback
+import alektas.sensor.bluetooth.DeviceCallback
 import alektas.sensor.domain.entities.DeviceModel
 import alektas.sensor.domain.entities.DeviceResource
 import android.bluetooth.BluetoothAdapter
@@ -10,7 +10,7 @@ class LegacyBleDeviceScanner(private val adapter: BluetoothAdapter) :
     private var callback: DeviceCallback? = null
     private val innerCallback =
         BluetoothAdapter.LeScanCallback { device, rssi, _ ->
-            callback?.onNext(DeviceModel(device.name, device.address, rssi))
+            callback?.onNext(device)
         }
 
     override fun startScan(callback: DeviceCallback) {

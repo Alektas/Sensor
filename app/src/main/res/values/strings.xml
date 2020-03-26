@@ -16,4 +16,6 @@
     <string name="location_enable_request_msg">Enable Location to use the feature</string>
     <string name="location_enable_request_title">Location access</string>
     <string name="location_enable_request_btn_positive">Open settings</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connected">Connected</string>
 </resources>
