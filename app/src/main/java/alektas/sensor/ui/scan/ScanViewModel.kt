@@ -21,7 +21,7 @@ class ScanViewModel @Inject constructor(
     private val deviceManager: DeviceManager
 ) : ViewModel() {
 
-    private val deviceMap = HashMap<String, DeviceModel>()
+    private var deviceList: List<DeviceModel> = ArrayList()
     private val _devices = MutableLiveData<List<DeviceModel>>()
     val devices: LiveData<List<DeviceModel>> get() = _devices
     private val _placeholderState = MutableLiveData(View.VISIBLE)
@@ -80,17 +80,28 @@ class ScanViewModel @Inject constructor(
     }
 
     private fun startScanning() {
+        deviceList = listOf()
         _devices.value = listOf()
         _placeholderState.value = View.VISIBLE
-        deviceMap.clear()
 
         deviceManager.startScan()
     }
 
     private fun applyDevice(device: DeviceModel) {
-        deviceMap[device.address] = device
-        if (deviceMap.isNotEmpty()) _placeholderState.value = View.INVISIBLE
-        _devices.value = deviceMap.values.toList()
+        deviceList = deviceList.update(device)
+        if (deviceList.isNotEmpty()) _placeholderState.value = View.INVISIBLE
+        _devices.value = deviceList
+    }
+
+    private fun List<DeviceModel>.update(device: DeviceModel): List<DeviceModel> {
+        val devices = ArrayList<DeviceModel>(this)
+        val i = indexOfFirst { it.address == device.address }
+        if (i < 0) {
+            devices.add(device)
+        } else {
+            devices[i] = device
+        }
+        return devices
     }
 
     private fun applyStatus(isActive: Boolean) {
