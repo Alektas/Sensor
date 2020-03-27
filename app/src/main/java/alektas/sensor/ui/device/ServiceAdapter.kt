@@ -14,12 +14,11 @@ import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder
 import kotlinx.android.synthetic.main.characteristic_item.view.*
 import kotlinx.android.synthetic.main.service_item.view.*
 
-
-typealias CharacteristicSelectListener = (CharacteristicModel) -> Unit
+typealias CharNotifyListener = (DeviceServiceModel, CharacteristicModel, Boolean) -> Unit
 
 class ServiceAdapter(
     groups: List<DeviceServiceModel>,
-    private val listener: CharacteristicSelectListener
+    private val listener: CharNotifyListener
 ) :
     ExpandableRecyclerViewAdapter<
             ServiceAdapter.ServiceViewHolder,
@@ -61,7 +60,10 @@ class ServiceAdapter(
         group: ExpandableGroup<*>?,
         childIndex: Int
     ) {
-        holder?.bindTo((group as DeviceServiceModel).items[childIndex]) { listener(it) }
+        holder?.run {
+            val service = group as DeviceServiceModel
+            bindTo(group.items[childIndex]) { char, isChecked -> listener(service, char, isChecked) }
+        }
     }
 
     class ServiceViewHolder(view: View) : GroupViewHolder(view) {
@@ -105,12 +107,15 @@ class ServiceAdapter(
     class CharacteristicViewHolder(view: View) : ChildViewHolder(view) {
         private val uuid = view.characteristic_uuid
         private val value = view.characteristic_value
+        private val notifyBtn = view.characteristic_notify_btn
 
-        fun bindTo(ch: CharacteristicModel, listener: CharacteristicSelectListener) = ch.let {
+        fun bindTo(ch: CharacteristicModel, listener: (CharacteristicModel, Boolean) -> Unit) = ch.let {
             uuid.text = it.uuid
             value.text = it.value ?: "UNKNOWN"
 
-            itemView.setOnClickListener { listener(ch) }
+            notifyBtn.setOnCheckedChangeListener { _, isChecked ->
+                notifyBtn.setOnClickListener { listener(ch, isChecked) }
+            }
         }
 
     }

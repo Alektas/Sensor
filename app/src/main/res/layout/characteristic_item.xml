@@ -66,7 +66,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/characteristic_uuid"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toTopOf="@id/characteristic_notify_btn"/>
 
         <TextView
             android:id="@+id/characteristic_value"
@@ -80,6 +80,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/characteristic_value_label"
             app:layout_constraintBaseline_toBaselineOf="@id/characteristic_value_label"/>
+
+        <androidx.appcompat.widget.AppCompatToggleButton
+            android:id="@+id/characteristic_notify_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/notify"
+            android:textOff="@string/notify"
+            android:textOn="@string/cancel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/characteristic_value_label"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -27,4 +27,6 @@
     <string name="characteristic_name">Characteristic name</string>
     <string name="characteristic_value_label">Value</string>
     <string name="characteristic_value_placeholder">0x0000</string>
+    <string name="notify">Notify</string>
+    <string name="cancel">Cancel</string>
 </resources>

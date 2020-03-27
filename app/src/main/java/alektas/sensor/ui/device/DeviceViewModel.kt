@@ -51,8 +51,14 @@ class DeviceViewModel constructor(
         _error.value = DisposableContainer(true)
     }
 
-    fun onCharacteristicSelect(characteristic: CharacteristicModel) {
-
+    fun onCharacteristicNotifyClick(
+        service: DeviceServiceModel,
+        char: CharacteristicModel,
+        isChecked: Boolean
+    ) = if (isChecked) {
+        deviceManager.subscribeOnCharacteristic(service.uuid, char.uuid)
+    } else {
+        deviceManager.unsubscribeFromCharacteristic(char.uuid)
     }
 
     override fun onCleared() {

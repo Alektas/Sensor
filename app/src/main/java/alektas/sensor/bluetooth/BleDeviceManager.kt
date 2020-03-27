@@ -56,6 +56,7 @@ class BleDeviceManager @Inject constructor(
                 BluetoothGatt.GATT_SUCCESS -> {
                     Log.d(TAG, "Discovered device services")
                     gatt?.services?.let { services ->
+                        lastServices = services
                         services.map { it.toModel() }.let {
                             deviceSource.onNext(DeviceResource.Data(it))
                         }
@@ -67,11 +68,20 @@ class BleDeviceManager @Inject constructor(
                 }
             }
         }
+
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?
+        ) {
+            Log.d(TAG, "onCharacteristicChanged: ${characteristic?.value}")
+        }
     }
     private val devices = HashMap<String, BluetoothDevice>()
     private val scanSource = PublishSubject.create<ScanResource>()
     private val deviceSource = PublishSubject.create<DeviceResource>()
     private var gatt: BluetoothGatt? = null
+    private var lastServices: List<BluetoothGattService>? = null
+    private val subscribedChars = HashMap<String, BluetoothGattCharacteristic>()
 
     override fun observeScanning(): Observable<ScanResource> = scanSource
 
@@ -102,7 +112,35 @@ class BleDeviceManager @Inject constructor(
         gatt?.disconnect()
         gatt?.close()
         gatt = null
+        lastServices = null
     }
+
+    override fun subscribeOnCharacteristic(serviceUuid: String, charUuid: String) {
+        // TODO: if didn't find a char send error
+        val char = findCharacteristic(serviceUuid, charUuid) ?: return
+
+        val previous = subscribedChars.put(char.uuid.toString(), char)
+        // if previous is not a null the char is already subscribed, so return
+        if (previous != null) return
+
+        gatt?.setCharacteristicNotification(char, true)
+    }
+
+    override fun unsubscribeFromCharacteristic(charUuid: String) {
+        // if there is no char with desired UUID just return (there is no subscribtion on it)
+        val char = subscribedChars[charUuid] ?: return
+        gatt?.setCharacteristicNotification(char, false)
+        subscribedChars.remove(charUuid)
+    }
+
+    override fun isCharacteristicSubscribed(uuid: String): Boolean =
+        subscribedChars.containsKey(uuid)
+
+    private fun findCharacteristic(
+        serviceUuid: String,
+        charUuid: String
+    ): BluetoothGattCharacteristic? = lastServices?.find { it.uuid.toString() == serviceUuid }
+        ?.characteristics?.find { it.uuid.toString() == charUuid }
 
     private fun BluetoothGattService.toModel(): DeviceServiceModel {
         val type = when (type) {

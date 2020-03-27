@@ -10,4 +10,8 @@ interface DeviceManager {
     fun observeDevice(): Observable<DeviceResource>
     fun connectDevice(address: String)
     fun disconnectDevice()
+
+    fun subscribeOnCharacteristic(serviceUuid: String, charUuid: String)
+    fun unsubscribeFromCharacteristic(charUuid: String)
+    fun isCharacteristicSubscribed(uuid: String): Boolean
 }
