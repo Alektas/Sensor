@@ -3,6 +3,7 @@ package alektas.sensor.ui.device
 import alektas.sensor.App
 import alektas.sensor.R
 import alektas.sensor.domain.entities.DeviceManager
+import alektas.sensor.domain.entities.DeviceServiceModel
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 
@@ -63,19 +64,16 @@ class DeviceFragment : Fragment() {
     }
 
     private fun initServiceList() {
-        serviceAdapter = ServiceAdapter { service ->
 
-        }
         with(device_services_list) {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = serviceAdapter
         }
     }
 
     private fun subscribeOn(viewModel: DeviceViewModel) {
         viewModel.services.observe(viewLifecycleOwner, Observer {
-            serviceAdapter.submitList(it)
+            applyToAdapter(it)
         })
         viewModel.connection.observe(viewLifecycleOwner, Observer {
             device_connection_status.text = getString(it)
@@ -83,6 +81,13 @@ class DeviceFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner, Observer {
             it.getValue()?.let { showError() }
         })
+    }
+
+    private fun applyToAdapter(services: List<DeviceServiceModel>) {
+        serviceAdapter = ServiceAdapter(services) { characteristic ->
+            viewModel.onCharacteristicSelect(characteristic)
+        }
+        device_services_list.adapter = serviceAdapter
     }
 
     private fun showError() {

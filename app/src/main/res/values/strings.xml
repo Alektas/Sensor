@@ -24,4 +24,7 @@
     <string name="service_type_placeholder">UNKNOWN</string>
     <string name="uuid_placeholder">0x0000</string>
     <string name="device_services_discovering_error">Fail to find device services</string>
+    <string name="characteristic_name">Characteristic name</string>
+    <string name="characteristic_value_label">Value</string>
+    <string name="characteristic_value_placeholder">0x0000</string>
 </resources>

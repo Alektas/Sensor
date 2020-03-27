@@ -2,6 +2,7 @@ package alektas.sensor.ui.device
 
 import alektas.sensor.R
 import alektas.sensor.domain.DisposableContainer
+import alektas.sensor.domain.entities.CharacteristicModel
 import alektas.sensor.domain.entities.DeviceManager
 import alektas.sensor.domain.entities.DeviceServiceModel
 import alektas.sensor.domain.entities.DeviceResource
@@ -48,6 +49,10 @@ class DeviceViewModel constructor(
 
     private fun applyError() {
         _error.value = DisposableContainer(true)
+    }
+
+    fun onCharacteristicSelect(characteristic: CharacteristicModel) {
+
     }
 
     override fun onCleared() {

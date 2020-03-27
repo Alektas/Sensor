@@ -1,3 +1,7 @@
 package alektas.sensor.domain.entities
 
-data class CharacteristicModel(val uuid: String)
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
+data class CharacteristicModel(val uuid: String, val value: String?) : Parcelable
