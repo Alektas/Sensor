@@ -110,7 +110,11 @@ class BleDeviceManager @Inject constructor(
             BluetoothGattService.SERVICE_TYPE_SECONDARY -> "SECONDARY"
             else -> "UNKNOWN"
         }
-        return DeviceServiceModel(toString(), uuid.toString(), type)
+        return DeviceServiceModel(toString(), uuid.toString(), type, characteristics.toModel())
+    }
+
+    private fun List<BluetoothGattCharacteristic>.toModel(): List<CharacteristicModel> = map {
+        CharacteristicModel(it.uuid.toString(), it.getStringValue(0))
     }
 
 }
