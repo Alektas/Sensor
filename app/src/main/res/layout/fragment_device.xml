@@ -35,20 +35,6 @@
         app:layout_constraintTop_toBottomOf="@id/device_name"/>
 
     <TextView
-        android:id="@+id/device_connection_status"
-        style="@style/TextAppearance.MaterialComponents.Subtitle1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_horiz_content"
-        android:layout_marginEnd="@dimen/margin_horiz_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/disconnected"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/device_name"/>
-
-    <TextView
         android:id="@+id/device_address_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -116,22 +102,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBaseline_toBaselineOf="@id/device_rssi"/>
 
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/device_data_graph"
+    <View
+        android:id="@+id/header_divider"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/height_device_data_graph"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="1dp"
+        android:layout_margin="@dimen/margin_horiz_divider"
+        android:background="?android:attr/listDivider"
         app:layout_constraintTop_toBottomOf="@id/device_rssi_label"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/device_services_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="8dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/device_data_graph"
+        app:layout_constraintTop_toBottomOf="@id/header_divider"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/service_item"/>

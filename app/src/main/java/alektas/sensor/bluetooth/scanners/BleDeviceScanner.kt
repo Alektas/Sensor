@@ -1,8 +1,7 @@
 package alektas.sensor.bluetooth.scanners
 
 import alektas.sensor.bluetooth.DeviceCallback
-import alektas.sensor.domain.entities.DeviceModel
-import alektas.sensor.domain.entities.DeviceResource
+import alektas.sensor.domain.entities.ScanResource
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
@@ -23,7 +22,7 @@ class BleDeviceScanner(private val adapter: BluetoothAdapter) :
 
         override fun onScanFailed(errorCode: Int) {
             callback?.onStatusChange(false)
-            callback?.onFail(DeviceResource.Error.ScanError(errorCode))
+            callback?.onFail(ScanResource.Error.ScanError(errorCode))
             super.onScanFailed(errorCode)
         }
     }
@@ -31,7 +30,7 @@ class BleDeviceScanner(private val adapter: BluetoothAdapter) :
     override fun startScan(callback: DeviceCallback) {
         if (!adapter.isEnabled) {
             callback.onStatusChange(false)
-            callback.onFail(DeviceResource.Error.BleDisabled)
+            callback.onFail(ScanResource.Error.BleDisabled)
             return
         }
 

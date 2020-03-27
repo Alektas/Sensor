@@ -1,8 +1,7 @@
 package alektas.sensor.bluetooth.scanners
 
 import alektas.sensor.bluetooth.DeviceCallback
-import alektas.sensor.domain.entities.DeviceModel
-import alektas.sensor.domain.entities.DeviceResource
+import alektas.sensor.domain.entities.ScanResource
 import android.bluetooth.BluetoothAdapter
 
 class LegacyBleDeviceScanner(private val adapter: BluetoothAdapter) :
@@ -16,7 +15,7 @@ class LegacyBleDeviceScanner(private val adapter: BluetoothAdapter) :
     override fun startScan(callback: DeviceCallback) {
         if (!adapter.isEnabled) {
             callback.onStatusChange(false)
-            callback.onFail(DeviceResource.Error.BleDisabled)
+            callback.onFail(ScanResource.Error.BleDisabled)
             return
         }
 

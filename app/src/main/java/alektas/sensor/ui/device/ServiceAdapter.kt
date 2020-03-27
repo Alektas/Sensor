@@ -27,7 +27,7 @@ class ServiceAdapter(private val listener: ServiceSelectListener) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServiceViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.device_item, parent, false)
+            .inflate(R.layout.service_item, parent, false)
         return ServiceViewHolder(view)
     }
 
