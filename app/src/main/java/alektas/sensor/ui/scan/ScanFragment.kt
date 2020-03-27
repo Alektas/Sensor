@@ -54,6 +54,7 @@ class ScanFragment : Fragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(requireContext())
             adapter = deviceAdapter
+            itemAnimator = null
         }
     }
 
