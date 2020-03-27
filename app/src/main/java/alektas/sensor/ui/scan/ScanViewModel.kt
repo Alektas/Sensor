@@ -5,7 +5,7 @@ import alektas.sensor.R
 import alektas.sensor.domain.DisposableContainer
 import alektas.sensor.domain.entities.DeviceManager
 import alektas.sensor.domain.entities.DeviceModel
-import alektas.sensor.domain.entities.DeviceResource
+import alektas.sensor.domain.entities.ScanResource
 import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -35,20 +35,21 @@ class ScanViewModel @Inject constructor(
     private val _showDeviceEvent = MutableLiveData<DisposableContainer<DeviceModel>>()
     val showDeviceEvent: LiveData<DisposableContainer<DeviceModel>> get() = _showDeviceEvent
     private var bleScanDisposable: Disposable? = null
+    private var isScanning = false
 
     init {
         App.component.inject(this)
 
-        bleScanDisposable = deviceManager.observeDevices()
+        bleScanDisposable = deviceManager.observeScanning()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 when (it) {
-                    is DeviceResource.Data -> applyDevice(it.device)
-                    is DeviceResource.Status -> applyStatus(it.isActive)
-                    is DeviceResource.Error -> when (it) {
-                        is DeviceResource.Error.BleDisabled -> applyRequest(R.string.ble_enable_request)
-                        is DeviceResource.Error.ScanError -> applyError(R.string.ble_scan_error)
+                    is ScanResource.Data -> applyDevice(it.device)
+                    is ScanResource.Status -> applyStatus(it.isActive)
+                    is ScanResource.Error -> when (it) {
+                        is ScanResource.Error.BleDisabled -> applyRequest(R.string.ble_enable_request)
+                        is ScanResource.Error.ScanError -> applyError(R.string.ble_scan_error)
                     }
                 }
             }, {
@@ -67,7 +68,7 @@ class ScanViewModel @Inject constructor(
     }
 
     fun onBleScanIntent() {
-        if (deviceManager.isScanning()) {
+        if (isScanning) {
             stopScanning()
             return
         }
@@ -93,6 +94,7 @@ class ScanViewModel @Inject constructor(
     }
 
     private fun applyStatus(isActive: Boolean) {
+        isScanning = isActive
         _scanStatus.value = if (isActive) {
             ScanningState(
                 View.VISIBLE,

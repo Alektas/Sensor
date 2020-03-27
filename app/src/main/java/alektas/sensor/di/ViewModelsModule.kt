@@ -25,13 +25,4 @@ class ViewModelsModule {
         }
     }
 
-    @Provides
-    @Named(value = DEVICE_VM_FACTORY_NAME)
-    fun provideDeviceViewModelFactory(
-        deviceManager: DeviceManager
-    ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return DeviceViewModel(deviceManager) as T
-        }
-    }
 }
