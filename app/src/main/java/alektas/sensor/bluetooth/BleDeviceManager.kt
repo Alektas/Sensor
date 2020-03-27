@@ -2,38 +2,106 @@ package alektas.sensor.bluetooth
 
 import alektas.sensor.domain.entities.*
 import android.annotation.SuppressLint
+import android.bluetooth.*
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
-class BleDeviceManager @Inject constructor(private val scanner: DeviceScanner) :
+private val TAG = BleDeviceManager::class.java.simpleName
+private const val STATE_DISCONNECTED = 0
+private const val STATE_CONNECTING = 1
+private const val STATE_CONNECTED = 2
+const val ACTION_GATT_CONNECTED = "com.example.bluetooth.le.ACTION_GATT_CONNECTED"
+const val ACTION_GATT_DISCONNECTED = "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED"
+const val ACTION_GATT_SERVICES_DISCOVERED =
+    "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED"
+const val ACTION_DATA_AVAILABLE = "com.example.bluetooth.le.ACTION_DATA_AVAILABLE"
+const val EXTRA_DATA = "com.example.bluetooth.le.EXTRA_DATA"
+
+class BleDeviceManager @Inject constructor(
+    private val context: Context,
+    private val scanner: DeviceScanner
+) :
     DeviceManager {
-    private val callback = object :
+    private val scanCallback = object :
         DeviceCallback {
-        override fun onNext(device: DeviceModel) {
-            devices.onNext(DeviceResource.Data(device))
+        override fun onNext(device: BluetoothDevice, rssi: Int) {
+            devices[device.address] = device
+            val model = DeviceModel(device.name, device.address, rssi)
+            val resource = DeviceResource.Data(model)
+            devicesSource.onNext(resource)
         }
 
         override fun onStatusChange(isActive: Boolean) {
             isScanning = isActive
-            devices.onNext(DeviceResource.Status(isActive))
+            devicesSource.onNext(DeviceResource.Status(isActive))
         }
 
         override fun onFail(error: DeviceResource.Error) {
-            devices.onNext(error)
+            devicesSource.onNext(error)
         }
     }
-    private val devices = PublishSubject.create<DeviceResource>()
-    private var isScanning = false
+    private val gattCallback = object : BluetoothGattCallback() {
+        override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+            when (newState) {
+                BluetoothProfile.STATE_CONNECTED -> {
+                    connectionState = STATE_CONNECTED
+                    broadcastUpdate(ACTION_GATT_CONNECTED)
+                    Log.i(TAG, "Connected to GATT server.")
+                    Log.i(
+                        TAG, "Attempting to start service discovery: " +
+                                gatt?.discoverServices()
+                    )
+                }
+                BluetoothProfile.STATE_DISCONNECTED -> {
+                    connectionState = STATE_DISCONNECTED
+                    Log.i(TAG, "Disconnected from GATT server.")
+                    broadcastUpdate(ACTION_GATT_DISCONNECTED)
+                }
+            }
+        }
 
-    override fun observeDevices(): Observable<DeviceResource> = devices
+        override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+            when (status) {
+                BluetoothGatt.GATT_SUCCESS -> {
+                    Log.i(TAG, "Discovered device services")
+                    gatt?.services?.let { services ->
+                        services.map { it.toModel() }.let {
+                            deviceServicesSource.onNext(DeviceServiceResource.Data(it))
+                        }
+                    }
+                    broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED)
+                }
+                else -> {
+                    Log.w(TAG, "onServicesDiscovered received: $status")
+                    deviceServicesSource.onNext(DeviceServiceResource.Error)
+                }
+            }
+        }
+    }
+    private val devices = HashMap<String, BluetoothDevice>()
+    private val devicesSource = PublishSubject.create<DeviceResource>()
+    private val deviceServicesSource = PublishSubject.create<DeviceServiceResource>()
+    private var isScanning = false
+    private var gatt: BluetoothGatt? = null
+    private var connectionState = STATE_DISCONNECTED
+
+    override fun observeDevices(): Observable<DeviceResource> = devicesSource
+
+    override fun observeDeviceServices(): Observable<DeviceServiceResource> = deviceServicesSource
 
     @SuppressLint("CheckResult")
     override fun startScan() {
+        devices.clear()
         Observable.fromIterable(scanner.getKnownDevices())
             .map { DeviceResource.Data(it) }
-            .subscribe { devices.onNext(it) }
-        scanner.startScan(callback)
+            .subscribe {
+                devicesSource.onNext(it)
+            }
+        scanner.startScan(scanCallback)
     }
 
     override fun stopScan() {
@@ -41,5 +109,30 @@ class BleDeviceManager @Inject constructor(private val scanner: DeviceScanner) :
     }
 
     override fun isScanning(): Boolean = isScanning
+
+    override fun connectDevice(address: String) {
+        gatt?.let { disconnectDevice() }
+        val device = devices[address]
+        gatt = device?.connectGatt(context, false, gattCallback)
+    }
+
+    override fun disconnectDevice() {
+        gatt?.disconnect()
+        gatt?.close()
+        gatt = null
+    }
+
+    private fun broadcastUpdate(action: String) {
+        context.sendBroadcast(Intent(action))
+    }
+
+    private fun BluetoothGattService.toModel(): DeviceServiceModel {
+        val type = when (type) {
+            BluetoothGattService.SERVICE_TYPE_PRIMARY -> "PRIMARY"
+            BluetoothGattService.SERVICE_TYPE_SECONDARY -> "SECONDARY"
+            else -> "UNKNOWN"
+        }
+        return DeviceServiceModel(toString(), uuid.toString(), type)
+    }
 
 }

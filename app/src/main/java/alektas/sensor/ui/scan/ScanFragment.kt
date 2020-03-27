@@ -2,6 +2,7 @@ package alektas.sensor.ui.scan
 
 import alektas.sensor.App
 import alektas.sensor.R
+import alektas.sensor.di.SCAN_VM_FACTORY_NAME
 import alektas.sensor.domain.entities.DeviceModel
 import alektas.sensor.ui.device.ARG_DEVICE_MAC
 import alektas.sensor.ui.device.ARG_DEVICE_NAME
@@ -17,28 +18,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_scan.*
 import javax.inject.Inject
+import javax.inject.Named
 
 class ScanFragment : Fragment() {
     @Inject
+    @field:Named(value = SCAN_VM_FACTORY_NAME)
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ScanViewModel by viewModels { viewModelFactory }
     private lateinit var deviceAdapter: DeviceAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setHasOptionsMenu(true)
         App.component.inject(this)
     }
-
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_scan, container, false)
     }
 

@@ -7,4 +7,7 @@ interface DeviceManager {
     fun startScan()
     fun stopScan()
     fun isScanning(): Boolean
+    fun observeDeviceServices(): Observable<DeviceServiceResource>
+    fun connectDevice(address: String)
+    fun disconnectDevice()
 }
