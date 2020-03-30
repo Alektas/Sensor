@@ -1,5 +1,6 @@
 package alektas.sensor.bluetooth
 
+import alektas.sensor.R
 import alektas.sensor.domain.entities.*
 import android.annotation.SuppressLint
 import android.bluetooth.*
@@ -7,9 +8,12 @@ import android.content.Context
 import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 private val TAG = BleDeviceManager::class.java.simpleName
+private const val CCCD_UUID = "00002902-0000-1000-8000-00805f9b34fb"
 
 class BleDeviceManager @Inject constructor(
     private val context: Context,
@@ -46,6 +50,8 @@ class BleDeviceManager @Inject constructor(
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     deviceSource.onNext(DeviceResource.Connection(false))
+                    gatt?.close()
+                    this@BleDeviceManager.gatt = null
                     Log.d(TAG, "Disconnected from GATT server.")
                 }
             }
@@ -56,8 +62,8 @@ class BleDeviceManager @Inject constructor(
                 BluetoothGatt.GATT_SUCCESS -> {
                     Log.d(TAG, "Discovered device services")
                     gatt?.services?.let { services ->
-                        lastServices = services
                         services.map { it.toModel() }.let {
+                            latestServices = it
                             deviceSource.onNext(DeviceResource.Data(it))
                         }
                     }
@@ -73,14 +79,18 @@ class BleDeviceManager @Inject constructor(
             gatt: BluetoothGatt?,
             characteristic: BluetoothGattCharacteristic?
         ) {
-            Log.d(TAG, "onCharacteristicChanged: ${characteristic?.value}")
+            Log.d(TAG, "onCharChanged: value=${characteristic?.value?.contentToString()}")
+            characteristic?.let {
+                latestServices = latestServices.updateCharacteristic(it.toModel())
+                deviceSource.onNext(DeviceResource.Data(latestServices))
+            }
         }
     }
     private val devices = HashMap<String, BluetoothDevice>()
     private val scanSource = PublishSubject.create<ScanResource>()
     private val deviceSource = PublishSubject.create<DeviceResource>()
     private var gatt: BluetoothGatt? = null
-    private var lastServices: List<BluetoothGattService>? = null
+    private var latestServices = listOf<DeviceServiceModel>()
     private val subscribedChars = HashMap<String, BluetoothGattCharacteristic>()
 
     override fun observeScanning(): Observable<ScanResource> = scanSource
@@ -110,9 +120,6 @@ class BleDeviceManager @Inject constructor(
 
     override fun disconnectDevice() {
         gatt?.disconnect()
-        gatt?.close()
-        gatt = null
-        lastServices = null
     }
 
     override fun subscribeOnCharacteristic(serviceUuid: String, charUuid: String) {
@@ -123,15 +130,27 @@ class BleDeviceManager @Inject constructor(
         // if previous is not a null the char is already subscribed, so return
         if (previous != null) return
 
-        gatt?.setCharacteristicNotification(char, true)
+        findNotifyDescription(char)?.let {
+            it.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            gatt?.writeDescriptor(it)
+            gatt?.setCharacteristicNotification(char, true)
+            latestServices = latestServices.updateCharacteristic(char.toModel(isObserved = true))
+        }
     }
 
     override fun unsubscribeFromCharacteristic(charUuid: String) {
         // if there is no char with desired UUID just return (there is no subscribtion on it)
         val char = subscribedChars[charUuid] ?: return
-        gatt?.setCharacteristicNotification(char, false)
-        subscribedChars.remove(charUuid)
+
+        findNotifyDescription(char)?.let {
+            gatt?.setCharacteristicNotification(char, false)
+            subscribedChars.remove(charUuid)
+            latestServices = latestServices.updateCharacteristic(char.toModel(isObserved = false))
+        }
     }
+
+    private fun findNotifyDescription(char: BluetoothGattCharacteristic): BluetoothGattDescriptor? =
+        char.descriptors.find { it.uuid == UUID.fromString(CCCD_UUID) }
 
     override fun isCharacteristicSubscribed(uuid: String): Boolean =
         subscribedChars.containsKey(uuid)
@@ -139,8 +158,8 @@ class BleDeviceManager @Inject constructor(
     private fun findCharacteristic(
         serviceUuid: String,
         charUuid: String
-    ): BluetoothGattCharacteristic? = lastServices?.find { it.uuid.toString() == serviceUuid }
-        ?.characteristics?.find { it.uuid.toString() == charUuid }
+    ): BluetoothGattCharacteristic? = gatt?.getService(UUID.fromString(serviceUuid))
+        ?.getCharacteristic(UUID.fromString(charUuid))
 
     private fun BluetoothGattService.toModel(): DeviceServiceModel {
         val type = when (type) {
@@ -148,11 +167,58 @@ class BleDeviceManager @Inject constructor(
             BluetoothGattService.SERVICE_TYPE_SECONDARY -> "SECONDARY"
             else -> "UNKNOWN"
         }
-        return DeviceServiceModel(toString(), uuid.toString(), type, characteristics.toModel())
+        return DeviceServiceModel(null, uuid.toString(), type, characteristics.toModel())
     }
 
     private fun List<BluetoothGattCharacteristic>.toModel(): List<CharacteristicModel> = map {
-        CharacteristicModel(it.uuid.toString(), it.getStringValue(0))
+        it.toModel()
     }
+
+    private fun BluetoothGattCharacteristic.toModel(
+        value: String? = null,
+        isObserved: Boolean? = null
+    ): CharacteristicModel =
+        CharacteristicModel(
+            uuid.toString(),
+            value ?: this.value?.contentToString(),
+            parseProperties(properties),
+            isObserved ?: subscribedChars.contains(uuid.toString())
+        )
+
+    private fun parseProperties(propertiesWord: Int): List<String> {
+        val properties = mutableListOf<String>()
+
+        if (propertiesWord and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
+            properties.add(context.getString(R.string.char_prop_read))
+        }
+        if (propertiesWord and (BluetoothGattCharacteristic.PROPERTY_WRITE or
+                    BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0
+        ) {
+            properties.add(context.getString(R.string.char_prop_write))
+        }
+        if (propertiesWord and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
+            properties.add(context.getString(R.string.char_prop_notify))
+        }
+        if (propertiesWord and BluetoothGattCharacteristic.PROPERTY_INDICATE > 0) {
+            properties.add(context.getString(R.string.char_prop_indicate))
+        }
+
+        return properties
+    }
+
+    private fun List<DeviceServiceModel>.updateCharacteristic(
+        characteristic: CharacteristicModel
+    ): List<DeviceServiceModel> =
+        this.map { service ->
+            val i = service.characteristics.indexOfFirst { it.uuid == characteristic.uuid }
+            if (i >= 0) {
+                val chars = service.characteristics.toMutableList().apply {
+                    set(i, characteristic)
+                }
+                service.copy(characteristics = chars.toList())
+            } else {
+                service
+            }
+        }
 
 }
