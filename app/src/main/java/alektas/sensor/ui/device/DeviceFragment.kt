@@ -84,8 +84,8 @@ class DeviceFragment : Fragment() {
     }
 
     private fun applyToAdapter(services: List<DeviceServiceModel>) {
-        serviceAdapter = ServiceAdapter(services) { characteristic ->
-            viewModel.onCharacteristicSelect(characteristic)
+        serviceAdapter = ServiceAdapter(services) { service, char, isChecked ->
+            viewModel.onCharacteristicNotifyClick(service, char, isChecked)
         }
         device_services_list.adapter = serviceAdapter
     }

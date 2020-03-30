@@ -38,7 +38,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/characteristic_name"
-            app:layout_constraintBottom_toTopOf="@id/characteristic_value_label"/>
+            app:layout_constraintBottom_toTopOf="@id/characteristic_properties_label"/>
 
         <TextView
             android:id="@+id/characteristic_uuid"
@@ -55,18 +55,43 @@
             app:layout_constraintBaseline_toBaselineOf="@id/characteristic_uuid_label"/>
 
         <TextView
-            android:id="@+id/characteristic_value_label"
+            android:id="@+id/characteristic_properties_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/characteristic_properties_label"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/characteristic_uuid_label"
+            app:layout_constraintBottom_toTopOf="@id/characteristic_value_label"/>
+
+        <TextView
+            android:id="@+id/characteristic_properties"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/characteristic_properties_placeholder"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/characteristic_properties_label"
+            app:layout_constraintBaseline_toBaselineOf="@id/characteristic_properties_label"/>
+
+        <TextView
+            android:id="@+id/characteristic_value_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
             android:text="@string/characteristic_value_label"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/characteristic_uuid"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/characteristic_properties_label"
+            app:layout_constraintBottom_toTopOf="@id/characteristic_notify_btn"/>
 
         <TextView
             android:id="@+id/characteristic_value"
@@ -80,6 +105,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/characteristic_value_label"
             app:layout_constraintBaseline_toBaselineOf="@id/characteristic_value_label"/>
+
+        <androidx.appcompat.widget.AppCompatToggleButton
+            android:id="@+id/characteristic_notify_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/notify"
+            android:textOff="@string/notify"
+            android:textOn="@string/cancel"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/characteristic_value_label"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

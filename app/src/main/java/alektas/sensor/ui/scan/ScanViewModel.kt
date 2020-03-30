@@ -58,6 +58,7 @@ class ScanViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        deviceManager.stopScan()
         bleScanDisposable?.takeUnless { it.isDisposed }?.dispose()
         super.onCleared()
     }

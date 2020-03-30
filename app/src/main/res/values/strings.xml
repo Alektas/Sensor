@@ -27,4 +27,12 @@
     <string name="characteristic_name">Characteristic name</string>
     <string name="characteristic_value_label">Value</string>
     <string name="characteristic_value_placeholder">0x0000</string>
+    <string name="notify">Notify</string>
+    <string name="cancel">Cancel</string>
+    <string name="characteristic_properties_placeholder">UNKNOWN</string>
+    <string name="characteristic_properties_label">Properties</string>
+    <string name="char_prop_read">READ</string>
+    <string name="char_prop_write">WRITE</string>
+    <string name="char_prop_notify">NOTIFY</string>
+    <string name="char_prop_indicate">INDICATE</string>
 </resources>
